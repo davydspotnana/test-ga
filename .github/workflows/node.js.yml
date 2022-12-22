@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
 
       - name: build
-        run: abc; # fail
+        run: echo "build embed app"
 
   build_prod_ios:
     name: iOS
