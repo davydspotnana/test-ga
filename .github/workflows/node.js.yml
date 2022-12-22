@@ -25,7 +25,6 @@ jobs:
           fetch-depth: 0
 
       - name: build
-        id: embed_deploy
         run: abc; # fail
 
   build_prod_ios:
@@ -40,7 +39,8 @@ jobs:
 
       - run: echo "Hello World"
         id: ios_deploy
-
+    outputs:
+      conclusion: ${{ steps.ios_deploy.conclusion }}
 
   build_prod_android:
     needs: build_embed_app
@@ -55,6 +55,9 @@ jobs:
       - run: echo "Hello World"
         id: android_deploy
 
+    outputs:
+      conclusion: ${{ steps.android_deploy.conclusion }}
+
   build_js_codepush:
     needs: build_embed_app
     name: Codepush
@@ -67,8 +70,11 @@ jobs:
       - run: echo "Hello World"
         id: codepush_deploy
 
+    outputs:
+      conclusion: ${{ steps.codepush_deploy.conclusion }}
+
   post_build:
-    if: ${{ steps.embed_deploy.conclusion != 'failure' && steps.ios_deploy.conclusion != 'failure' && steps.android_deploy.conclusion != 'failure' && steps.embed_deploy.conclusion != 'failure' && steps.codepush_deploy.conclusion != 'failure' }}
+    if: ${{ needs.build_prod_android.outputs.conclusion === 'success' && needs.build_prod_ios.outputs.conclusion === 'success' || needs.build_js_codepush.outputs.conclusion === 'success' }}
     needs: [build_prod_android, build_prod_ios, build_js_codepush]
     name: Post Build
     runs-on: ubuntu-20.04
