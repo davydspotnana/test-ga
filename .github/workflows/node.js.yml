@@ -4,28 +4,70 @@
 name: Node.js CI
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Release type'
+        required: true
+        default: Weekly
+        type: choice
+        options:
+          - Weekly
+          - Hotfix
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+  build_embed_app:
+    name: embed
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - run: abc; # fail
+
+  build_prod_ios:
+    name: iOS
+    runs-on: macos-12
+    needs: build_embed_app
+    if: ${{ github.event.inputs.releaseType == 'Weekly' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - run: echo "Hello World"
+
+
+  build_prod_android:
+    needs: build_embed_app
+    name: Android
+    runs-on: ubuntu-20.04
+    if: ${{ github.event.inputs.releaseType == 'Weekly' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - run: echo "Hello World"
+
+  build_js_codepush:
+    needs: build_embed_app
+    name: Codepush
+    runs-on: ubuntu-20.04
+    if: ${{ github.event.inputs.releaseType == 'Hotfix' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: echo "Hello World"
+
+  post_build:
+    if: ${{ always() }} # Run even if previous steps was skipped
+    needs: [build_prod_android, build_prod_ios, build_js_codepush]
+    name: Post Build
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
