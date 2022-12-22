@@ -37,7 +37,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo "Hello World"
+      - run: (( RANDOM%2 == 0 )) && echo "ok" || asc
         id: ios_deploy
     outputs:
       conclusion: ${{ steps.ios_deploy.conclusion }}
@@ -52,7 +52,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo "Hello World"
+      - run: (( RANDOM%2 == 0 )) && echo "ok" || asc
         id: android_deploy
 
     outputs:
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - run: echo "Hello World"
+      - run: (( RANDOM%2 == 0 )) && echo "ok" || asc
         id: codepush_deploy
 
     outputs:
