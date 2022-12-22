@@ -24,7 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: abc; # fail
+      - name: build
+        id: embed_deploy
+        run: abc; # fail
 
   build_prod_ios:
     name: iOS
@@ -37,6 +39,7 @@ jobs:
           fetch-depth: 0
 
       - run: echo "Hello World"
+        id: ios_deploy
 
 
   build_prod_android:
@@ -50,6 +53,7 @@ jobs:
           fetch-depth: 0
 
       - run: echo "Hello World"
+        id: android_deploy
 
   build_js_codepush:
     needs: build_embed_app
@@ -61,9 +65,10 @@ jobs:
         with:
           fetch-depth: 0
       - run: echo "Hello World"
+        id: codepush_deploy
 
   post_build:
-    if: ${{ always() }} # Run even if previous steps was skipped
+    if: ${{ steps.embed_deploy.conclusion != 'failure' && steps.ios_deploy.conclusion != 'failure' && steps.android_deploy.conclusion != 'failure' && steps.embed_deploy.conclusion != 'failure' && steps.codepush_deploy.conclusion != 'failure' }}
     needs: [build_prod_android, build_prod_ios, build_js_codepush]
     name: Post Build
     runs-on: ubuntu-20.04
