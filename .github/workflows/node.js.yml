@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
 
       - name: build
-        run: echo "build embed app"
+        run: (( RANDOM%2 == 0 )) && echo "ok" || asc
 
   build_prod_ios:
     name: iOS
