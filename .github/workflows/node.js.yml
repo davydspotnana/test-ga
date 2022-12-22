@@ -74,7 +74,7 @@ jobs:
       conclusion: ${{ steps.codepush_deploy.conclusion }}
 
   post_build:
-    if: ${{ needs.build_prod_android.outputs.conclusion == 'success' && needs.build_prod_ios.outputs.conclusion == 'success' || needs.build_js_codepush.outputs.conclusion == 'success' }}
+    if: ${{ always() && (needs.build_prod_android.outputs.conclusion == 'success' && needs.build_prod_ios.outputs.conclusion == 'success' || needs.build_js_codepush.outputs.conclusion == 'success') }}
     needs: [build_prod_android, build_prod_ios, build_js_codepush]
     name: Post Build
     runs-on: ubuntu-20.04
